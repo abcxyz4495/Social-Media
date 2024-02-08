@@ -30,6 +30,7 @@ const handleNewUser = TryCatch(async (req, res, next) => {
 
 const handleLogin = TryCatch(async (req, res, next) => {
 	const { email, password } = req.body;
+	console.log(email, password);
 	if (!email || !password)
 		return next(new ErrorHandler(400, "Missing fields"));
 
@@ -48,7 +49,7 @@ const handleLogin = TryCatch(async (req, res, next) => {
 	const refreshToken = jwt.sign(
 		{ email: user.email },
 		process.env.REFRESH_TOKEN_SECRET,
-		{ expiresIn: "2m" }
+		{ expiresIn: "1d" }
 	);
 
 	user.refreshToken = refreshToken;
@@ -59,10 +60,10 @@ const handleLogin = TryCatch(async (req, res, next) => {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none",
-		maxAge: 2 * 60 * 1000,
+		maxAge: 24 * 60 * 60 * 1000,
 	});
 
-	res.json({ accessToken });
+	res.json({ email, accessToken });
 });
 
 const handleLogout = TryCatch(async (req, res, next) => {
@@ -100,14 +101,20 @@ const handleRefreshToken = TryCatch(async (req, res, next) => {
 		process.env.REFRESH_TOKEN_SECRET,
 		(err, decoded) => {
 			if (user.email != decoded.email || err) return res.sendStatus(403);
-			jwt.verify(
+			jwt.sign(
 				{ email: user.email },
 				process.env.REFRESH_TOKEN_SECRET,
-				{ expiresIn: "10s" }
+				{ expiresIn: "1d" }
 			);
 			res.json({ accessToken });
 		}
 	);
+});
+
+const handleAllUser = TryCatch(async (req, res, next) => {
+	const users = await User.find({});
+	if (!users) return next(new ErrorHandler(400, "Not Found"));
+	return res.status(200).json(users);
 });
 
 module.exports = {
@@ -115,4 +122,5 @@ module.exports = {
 	handleLogin,
 	handleLogout,
 	handleRefreshToken,
+	handleAllUser,
 };
