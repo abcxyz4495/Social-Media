@@ -23,14 +23,11 @@ const handleNewUser = TryCatch(async (req, res, next) => {
 		password: hashPassword,
 	});
 
-	console.log(result);
-
 	res.status(201).json({ success: `New user ${username} created!` });
 });
 
 const handleLogin = TryCatch(async (req, res, next) => {
 	const { email, password } = req.body;
-	console.log(email, password);
 	if (!email || !password)
 		return next(new ErrorHandler(400, "Missing fields"));
 
@@ -54,20 +51,18 @@ const handleLogin = TryCatch(async (req, res, next) => {
 
 	user.refreshToken = refreshToken;
 	const result = await user.save();
-	console.log(result);
 
 	res.cookie("jwt", refreshToken, {
 		httpOnly: true,
 		secure: true,
 		sameSite: "none",
-		maxAge: 24 * 60 * 60 * 1000,
+		maxAge: 60 * 1000,
 	});
 
-	res.json({ email, accessToken });
+	res.json({ accessToken });
 });
 
 const handleLogout = TryCatch(async (req, res, next) => {
-	const cookies = req.cookies;
 	if (!cookies?.jwt) return res.status(204);
 
 	const refreshToken = cookies.jwt;
@@ -82,7 +77,6 @@ const handleLogout = TryCatch(async (req, res, next) => {
 
 	user.refreshToken = "";
 	const result = await User.save();
-	console.log(result);
 
 	res.clearCookies("jwt", { httpOnly: true, sameSite: "none", secure: true });
 	res.sendStatus(204);
@@ -93,7 +87,7 @@ const handleRefreshToken = TryCatch(async (req, res, next) => {
 	if (!cookies?.jwt) return res.sendStatus(401);
 	const refreshToken = cookies.jwt;
 
-	const user = await User.find({ refreshToken });
+	const user = await User.findOne({ refreshToken });
 	if (!user) return res.sendStatus(403);
 
 	jwt.verify(
@@ -101,10 +95,12 @@ const handleRefreshToken = TryCatch(async (req, res, next) => {
 		process.env.REFRESH_TOKEN_SECRET,
 		(err, decoded) => {
 			if (user.email != decoded.email || err) return res.sendStatus(403);
-			jwt.sign(
+			const accessToken = jwt.sign(
 				{ email: user.email },
-				process.env.REFRESH_TOKEN_SECRET,
-				{ expiresIn: "1d" }
+				process.env.ACCESS_TOKEN_SECRET,
+				{
+					expiresIn: "10s",
+				}
 			);
 			res.json({ accessToken });
 		}
@@ -113,6 +109,7 @@ const handleRefreshToken = TryCatch(async (req, res, next) => {
 
 const handleAllUser = TryCatch(async (req, res, next) => {
 	const users = await User.find({});
+	console.log(users);
 	if (!users) return next(new ErrorHandler(400, "Not Found"));
 	return res.status(200).json(users);
 });

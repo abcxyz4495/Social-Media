@@ -26,12 +26,12 @@ const PersistLogin = () => {
 			: setIsLoading(false);
 
 		return () => (isMounted = false);
-	}, []);
+	}, [auth?.accessToken, persist, refresh]);
 
 	useEffect(() => {
 		console.log(`isLoading: ${isLoading}`);
 		console.log(`aT: ${JSON.stringify(auth?.accessToken)}`);
-	}, [isLoading]);
+	}, [auth?.accessToken, isLoading]);
 
 	return (
 		<>

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
- "scripts": {
+  "scripts": {
     "start": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "start-frontend": "npm run dev --prefix frontend",
     "start-backend": "npm start --prefix backend",
@@ -14,5 +14,8 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.6"
   }
 }

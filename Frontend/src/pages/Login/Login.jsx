@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaGithub } from "react-icons/fa";
 import { FaLessThan } from "react-icons/fa6";
@@ -42,10 +42,18 @@ function Login() {
 		}
 	}
 
+	function togglePersist() {
+		setPersist((prev) => !prev);
+	}
+
 	function handlerUserSignUp(data) {
 		console.log("SignUp", data);
 		reset();
 	}
+
+	useEffect(() => {
+		localStorage.setItem("persist", true);
+	}, [persist]);
 
 	return (
 		<div className="w-full h-screen flex">

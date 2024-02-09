@@ -1,3 +1,4 @@
+const ErrorHandler = require("../utils/utilityClasses");
 const allowedOrigins = require("./allowedOrigins");
 
 const corsOptions = {
@@ -5,7 +6,7 @@ const corsOptions = {
 		if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
 			callback(null, true);
 		} else {
-			callback(new Error("Not allowed by CORS"));
+			callback(new ErrorHandler(404, "Not allowed by CORS"));
 		}
 	},
 	optionsSuccessStatus: 200,

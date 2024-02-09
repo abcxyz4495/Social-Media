@@ -17,7 +17,7 @@ function Home() {
 				const response = await axiosPrivate.get("/user", {
 					signal: controller.signal,
 				});
-				console.log(response.data);
+				console.log("Response Data", response.data);
 				isMounted && setUsers(response.data);
 			} catch (err) {
 				console.error(err);
@@ -34,10 +34,14 @@ function Home() {
 			isMounted = false;
 			controller.abort();
 		};
-	}, []);
+	}, [axiosPrivate, location, navigate]);
 
-	console.log(users);
-	return <div className="w-full h-screen">Home</div>;
+	console.log("User", users);
+	return (
+		<div className="w-full h-screen">
+			<button onClick={() => navigate("/profile")}>Profile</button>
+		</div>
+	);
 }
 
 export default Home;
