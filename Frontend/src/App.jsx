@@ -12,12 +12,12 @@ function App() {
 			<Routes>
 				<Route path="/login" element={<Login />} />
 
-				<Route element={<RequireAuth />}>
-					<Route element={<PersistLogin />}>
+				<Route element={<PersistLogin />}>
+					<Route element={<RequireAuth />}>
 						<Route path="/" element={<Home />} />
 					</Route>
-					
-					<Route element={<PersistLogin />}>
+
+					<Route element={<RequireAuth />}>
 						<Route path="/profile" element={<Profile />} />
 					</Route>
 				</Route>

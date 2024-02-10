@@ -63,10 +63,11 @@ const handleLogin = TryCatch(async (req, res, next) => {
 });
 
 const handleLogout = TryCatch(async (req, res, next) => {
+	const cookies = req.cookies;
 	if (!cookies?.jwt) return res.status(204);
 
 	const refreshToken = cookies.jwt;
-	const user = await User.find({ refreshToken });
+	const user = await User.findOne({ refreshToken });
 	if (!user) {
 		res.clearCookies("jwt", {
 			httpOnly: true,
@@ -76,9 +77,9 @@ const handleLogout = TryCatch(async (req, res, next) => {
 	}
 
 	user.refreshToken = "";
-	const result = await User.save();
+	const result = await user.save();
 
-	res.clearCookies("jwt", { httpOnly: true, sameSite: "none", secure: true });
+	res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
 	res.sendStatus(204);
 });
 
