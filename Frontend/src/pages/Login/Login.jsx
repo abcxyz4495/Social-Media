@@ -6,12 +6,16 @@ import { FaLessThan } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
-import axios from "@/api/axios";
-import useAuth from "@/hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "@/features/auth/authSlice";
+import { logOut } from "@/features/auth/authSlice";
+import { useLoginMutation } from "@/features/auth/authApiSlice";
 
 function Login() {
-	const { setAuth, persist, setPersist } = useAuth();
 	const navigate = useNavigate();
+	const [login, { isLoading }] = useLoginMutation();
+	const dispatch = useDispatch();
+
 	const [hasAccount, setHasAccount] = useState(true);
 
 	const { register, handleSubmit, reset } = useForm();
@@ -20,16 +24,11 @@ function Login() {
 
 	async function handlerUserLogin(data) {
 		try {
-			const response = await axios.post(
-				"/user/login",
-				JSON.stringify({ email: data.email, password: data.password }),
-				{
-					headers: { "Content-Type": "application/json" },
-					withCredentials: true,
-				}
-			);
-			const accessToken = response?.data?.accessToken;
-			setAuth({ email: data.email, accessToken });
+			const userData = await login({
+				email: data.email,
+				password: data.password,
+			}).unwrap();
+			dispatch(setCredentials({ ...userData, email: data.email }));
 			reset();
 			navigate(from, { replace: true });
 		} catch (error) {
@@ -42,18 +41,10 @@ function Login() {
 		}
 	}
 
-	function togglePersist() {
-		setPersist((prev) => !prev);
-	}
-
 	function handlerUserSignUp(data) {
 		console.log("SignUp", data);
 		reset();
 	}
-
-	useEffect(() => {
-		localStorage.setItem("persist", persist);
-	}, [persist]);
 
 	return (
 		<div className="w-full h-screen flex">

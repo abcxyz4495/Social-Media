@@ -2,9 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login/Login";
 import Home from "./pages/Home/Home";
 import NotFound from "./pages/NotFound";
-import RequireAuth from "./components/RequireAuth";
-import PersistLogin from "./components/PersistLogin";
 import Profile from "./pages/Profile/Profile";
+import RequireAuth from "./features/auth/RequireAuth";
 
 function App() {
 	return (
@@ -12,14 +11,9 @@ function App() {
 			<Routes>
 				<Route path="/login" element={<Login />} />
 
-				<Route element={<PersistLogin />}>
-					<Route element={<RequireAuth />}>
-						<Route path="/" element={<Home />} />
-					</Route>
-
-					<Route element={<RequireAuth />}>
-						<Route path="/profile" element={<Profile />} />
-					</Route>
+				<Route element={<RequireAuth />}>
+					<Route path="/" element={<Home />} />
+					<Route path="/profile" element={<Profile />} />
 				</Route>
 
 				<Route path="*" element={<NotFound />} />
